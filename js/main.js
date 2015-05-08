@@ -33,22 +33,24 @@ var main = {
 		}
 
 		if (this.game.world.width < 650) {
-			this.scoreY = 110;
+			this.scoreY = 140*this.resize;
 		} else {
 			this.scoreY = 40;
 		}
 
 	    // Game Objects
 		this.player = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY + this.radius, 'pallete');
+		this.player.scale.setTo(this.resize, this.resize);
 		this.game.physics.arcade.enable(this.player);
 		this.player.body.collideWorldBounds = true;
 		this.player.anchor.setTo(0.5, 0.5);
 
 		this.ball = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'ball');
+		this.ball.scale.setTo(this.resize, this.resize);
 		this.game.physics.arcade.enable(this.ball);
-		this.ball.body.collideWorldBounds = true;
 		this.ball.body.bounce.setTo(1, 1);
 		this.ball.anchor.setTo(0.5, 0.5);
+		this.ball.visible = false;
 
 		this.hit_sound = this.game.add.sound('hit');
 		this.hit_sound.volume = 0.2;
@@ -58,16 +60,18 @@ var main = {
 		this.higher = false;
 
 		this.game.score = 0;
-		this.score_text = this.game.add.text(this.game.world.centerX, this.scoreY, '0', {font: '6em "Righteous"', fill: '#f6546a'});
+		var size = 6*this.resize;
+		this.score_text = this.game.add.text(this.game.world.centerX, this.scoreY, '0', {font: size+'em "Righteous"', fill: '#f6546a'});
 		this.score_text.anchor.setTo(0.5, 0.5);
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
 
 		// Instructions
+		size = 40*this.resize;
 		if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) { 	
-			this.instructions = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Tap to control the pad.', {font: '3em "Righteous"', fill: '#f6546a'});
+			this.instructions = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Tap to control the pad.', {font: size+'px "Righteous"', fill: '#f6546a'});
 		} else {
-			this.instructions = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Press \'left\' and \'right\' or tap\nto control the pad', {font: '3em "Righteous"', fill: '#f6546a', align: 'center'});
+			this.instructions = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Press \'left\' and \'right\' or tap\nto control the pad', {font: size+'px "Righteous"', fill: '#f6546a', align: 'center'});
 		}
 		this.instructions.anchor.setTo(0.5, 0.5);
 	},
@@ -75,20 +79,13 @@ var main = {
 	update: function() {
 
 		if ((this.cursors.left.isDown || this.cursors.right.isDown || this.game.input.mousePointer.isDown || this.game.input.pointer1.isDown) && !this.ballMoving) {
-			this.ball.body.velocity.x = 300;
-			this.ball.body.velocity.y = -100;
+			this.instructions.destroy();
+			this.ball.visible = true;
+			this.ball.body.velocity.x = 315*this.resize;
+			this.ball.body.velocity.y = -115*this.resize;
 			this.ballMoving = true;
 			this.enablePad = true;
-			this.instructions.destroy();
 		}
-		
-		if (!this.checkBall()) {
-			if (this.higher) window.localStorage.setItem('pong', this.game.score);
-			this.game.higher = this.higher;
-			this.game.state.start('end');
-		}
-
-		if (this.enablePad) this.circularMotion();
 
 		if (this.cursors.left.isDown && this.direction === -1) {
 			this.direction = 1; 
@@ -99,16 +96,28 @@ var main = {
 			this.mouseTime = this.game.time.now + this.mouseDelta;
 		}
 
-		this.game.physics.arcade.overlap(this.player, this.ball, null, this.hitBall, this);
+		if (!this.checkBall()) {
+			this.player.kill();
+			this.game.higher = this.higher;
+			if (this.higher) window.localStorage.setItem('pong', this.game.score);
+			this.game.state.start('end');
+		} else if (this.enablePad) {
+			this.circularMotion();
+			this.game.physics.arcade.overlap(this.player, this.ball, null, this.hitBall, this);
+		}
 	},
 
 	checkBall: function() {
 		var dx = (this.ball.x - this.game.world.centerX)*(this.ball.x - this.game.world.centerX);
 		var dy = (this.ball.y - this.game.world.centerY)*(this.ball.y - this.game.world.centerY);
-		return (dx + dy) <= (this.radius*this.radius);
+		return (dx + dy) <= (this.radius*this.radius) + (this.resize*2500);
 	},
 
 	circularMotion: function () {
+
+		if (this.player === undefined) {
+			console.log('Dead');
+		}
 
 		if (this.direction === -1) {
 			this.period = (this.period - 0.08)%360;
@@ -135,7 +144,7 @@ var main = {
 		ball.body.velocity.x *= 1 + Math.random();
 		ball.body.velocity.y *= 1 + Math.random();		
 
-		this.game.add.tween(ball.scale).to({x:1.3, y:1.3}, 200).to({x:0.9, y:0.9}, 200).start();
+		this.game.add.tween(ball.scale).to({x:1.3*this.resize, y:1.3*this.resize}, 200).to({x:0.9*this.resize, y:0.9*this.resize}, 200).start();
 		
 		this.hit_sound.play();
 		this.updateScore();

@@ -11,6 +11,14 @@
     body {
       background-color: #ccffcc;
     }
+    
+    @media only screen and (min-device-width: 769px){
+      #game_div {
+        width: 650px;
+        margin: auto;
+        margin-top: 2%;
+      }
+    }
 
     @media only screen and (max-device-width: 768px){
       #game_div {
@@ -18,14 +26,6 @@
         margin: auto;
         margin-left: -8px;
         margin-top: 3%;
-      }
-    }
-
-    @media only screen and (min-device-width: 768px){
-      #game_div {
-        width: 650px;
-        margin: auto;
-        margin-top: 2%;
       }
     }
 
@@ -37,20 +37,19 @@
     }
   </style>
 
+</head>
+
+<body>
+
+  <div id="game_div"> </div>
+  <h5>Made just for fun (:</h5>
+
   <script type="text/javascript" src="js/phaser.min.js"></script>
   <script type="text/javascript" src="js/load.js"></script>
   <script type="text/javascript" src="js/menu.js"></script>
   <script type="text/javascript" src="js/main.js"></script>
   <script type="text/javascript" src="js/end.js"></script>
   <script type="text/javascript" src="js/game.js"></script>
-</head>
-
-<body>
-
-    <div id="game_div"> </div>
-
-  <h5>Made just for fun (:</h5>
-
 </body>
 
 </html>

@@ -5,7 +5,6 @@ var main = {
 	},
 
 	create: function() {
-
 		this.resize = this.game.world.width/650;
 
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -13,9 +12,9 @@ var main = {
 		// Game Stage
 		var graphics = this.game.add.graphics(this.game.world.centerX, this.game.world.centerY);
 		graphics.lineStyle(0);
-    graphics.beginFill(0x4099ff, 0.7);
-    graphics.drawCircle(325/128, 325/128, 490*this.resize);
-    graphics.endFill();
+	    graphics.beginFill(0x4099ff, 0.7);
+	    graphics.drawCircle(325/128, 325/128, 490*this.resize);
+	    graphics.endFill();
 
 		// Game Constants
 		this.direction = 1;
@@ -38,7 +37,7 @@ var main = {
 			this.scoreY = 40;
 		}
 
-	  // Game Objects
+		// Game Objects
 		this.player = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY + this.radius, 'pallete');
 		this.player.scale.setTo(this.resize, this.resize);
 		this.game.physics.arcade.enable(this.player);
@@ -101,14 +100,14 @@ var main = {
 
 	handleCollisions: function() {
 		var check = this.checkBall();
-		var threshold = this.ball.width+this.player.height;
+		var threshold = 2*this.ball.width+this.player.height;
 
 		if (!check) {
 			var playerX = this.player.x;
 			var playerY = this.player.y;
-			var angle = this.player.rotation;
+			var angle = this.player.rotation > 180 ? this.player.rotation-180 : this.player.rotation;
 
-			var a = -Math.tan(this.period);
+			var a = Math.tan(angle);
 			var b = playerY - a*playerX;
 
 			var diff = Math.abs( (a*this.ball.x + b) - this.ball.y );

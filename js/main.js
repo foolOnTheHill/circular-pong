@@ -1,3 +1,77 @@
+var LEVELS = [
+	{
+		hits: 2,
+		accelerate: 0
+	}];/*,
+	{
+		hits: 3,
+		accelerate: 0
+	},
+	{
+		hits: 4,
+		accelerate: 0
+	},
+	{
+		hits: 5,
+		accelerate: 0
+	},
+	{
+		hits: 7,
+		accelerate: 0
+	},
+	{
+		hits: 8,
+		accelerate: 0
+	},
+	{
+		hits: 9,
+		accelerate: 0
+	},
+	{
+		hits: 10,
+		accelerate: 0
+	},
+	{
+		hits: 12,
+		accelerate: 0
+	},
+	{
+		hits: 13,
+		accelerate: 0
+	},
+	{
+		hits: 15,
+		accelerate: 0
+	},
+	{
+		hits: 17,
+		accelerate: 0
+	},
+	{
+		hits: 18,
+		accelerate: 0
+	},
+	{
+		hits: 19,
+		accelerate: 0
+	},
+	{
+		hits: 20,
+		accelerate: 1
+	},
+	{
+		hits: 22,
+		accelerate: 1
+	},
+	{
+		hits: 25,
+		accelerate: 1
+	},
+	{
+		hits: 30,
+		accelerate: 2
+	},
+];*/
 
 var main = {
 	preload: function() {
@@ -10,11 +84,11 @@ var main = {
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
 		// Game Stage
-		var graphics = this.game.add.graphics(this.game.world.centerX, this.game.world.centerY);
-		graphics.lineStyle(0);
-	    graphics.beginFill(0x4099ff, 0.7);
-	    graphics.drawCircle(325/128, 325/128, 490*this.resize);
-	    graphics.endFill();
+		this.graphics = this.game.add.graphics(this.game.world.centerX, this.game.world.centerY);
+		this.graphics.lineStyle(0);
+		this.graphics.beginFill(0xd3d3d3, 1);
+		this.graphics.drawCircle(325/128, 325/128, 490*this.resize);
+		this.graphics.endFill();
 
 		// Game Constants
 		this.direction = 1;
@@ -31,11 +105,7 @@ var main = {
 			this.mouseDelta = 250;
 		}
 
-		if (this.game.world.width < 650) {
-			this.scoreY = 140*this.resize;
-		} else {
-			this.scoreY = 40;
-		}
+		this.scoreY = 40;
 
 		// Game Objects
 		this.player = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY + this.radius, 'pallete');
@@ -54,23 +124,29 @@ var main = {
 		this.hit_sound = this.game.add.sound('hit');
 		this.hit_sound.volume = 0.2;
 
-		// Scores
-		this.highScore = window.localStorage.getItem('pong') || 0;
-		this.higher = false;
+		//Level
+		this.game.level = LEVELS[this.game.current_level];
 
-		this.game.score = 0;
+		// Hits
+		this.game.score = this.game.level.hits;
+
 		var size = 6*this.resize;
-		this.score_text = this.game.add.text(this.game.world.centerX, this.scoreY, '0', {font: size+'em "Righteous"', fill: '#f6546a'});
+		this.score_text = this.game.add.text(this.game.world.centerX, this.scoreY, ''+this.game.score, {font: size+'em "Righteous"', fill: '#d3d3d3'});
 		this.score_text.anchor.setTo(0.5, 0.5);
+
+		this.level_text = this.game.add.text(this.game.world.centerX, this.game.world.height-40, 'Level: '+(this.game.current_level+1)+'/'+LEVELS.length, {font: size+'em "Righteous"', fill: '#d3d3d3'});
+		this.level_text.anchor.setTo(0.5, 0.5);
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
 
 		// Instructions
-		size = 40*this.resize;
+
 		if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-			this.instructions = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Tap to control the pad.', {font: size+'px "Righteous"', fill: '#f6546a'});
+			size = 40*this.resize;
+			this.instructions = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Tap to control the pad.', {font: size+'px "Righteous"', fill: '#000000'});
 		} else {
-			this.instructions = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Press \'left\' and \'right\' or tap\nto control the pad', {font: size+'px "Righteous"', fill: '#f6546a', align: 'center'});
+			size = 30*this.resize;
+			this.instructions = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Press \'left\' and \'right\' or tap\nto control the pad', {font: size+'px "Righteous"', fill: '#000000', align: 'center'});
 		}
 		this.instructions.anchor.setTo(0.5, 0.5);
 	},
@@ -124,13 +200,11 @@ var main = {
 
 	handleGameOver: function() {
 		this.player.kill();
-		this.game.higher = this.higher;
-		if (this.higher) window.localStorage.setItem('pong', this.game.score);
 		this.game.state.start('end');
 	},
 
 	checkBall: function() {
-		var r = this.radius - this.ball.width/2;
+		var r = this.radius - this.ball.width/1.5;
 		var dx = (this.ball.x - this.game.world.centerX)*(this.ball.x - this.game.world.centerX);
 		var dy = (this.ball.y - this.game.world.centerY)*(this.ball.y - this.game.world.centerY);
 		return (dx + dy) <= r*r;
@@ -156,11 +230,18 @@ var main = {
 		var velX = this.game.world.centerX - this.player.x;
 		var velY = this.game.world.centerY - this.player.y;
 
-		this.ball.body.velocity.x = (-this.ball.body.velocity.x)*(1-fac) + velX*fac;
-		this.ball.body.velocity.y = (-this.ball.body.velocity.y)*(1-fac) + velY*fac;
+		this.ball.body.velocity.x *= -1;
+		this.ball.body.velocity.y *= -1;
 
-		this.ball.body.velocity.x *= 1 + Math.random();
-		this.ball.body.velocity.y *= 1 + Math.random();
+		if (this.game.level.accelerate >= 1) {
+			this.ball.body.velocity.x = (this.ball.body.velocity.x)*(1-fac) + velX*fac;
+			this.ball.body.velocity.y = (this.ball.body.velocity.y)*(1-fac) + velY*fac;
+		}
+
+		if (this.game.level.accelerate == 2) {
+			this.ball.body.velocity.x *= 1 + Math.random();
+			this.ball.body.velocity.y *= 1 + Math.random();
+		}
 
 		this.game.add.tween(this.ball.scale).to({x:1.3*this.resize, y:1.3*this.resize}, 200).to({x:0.9*this.resize, y:0.9*this.resize}, 200).start();
 
@@ -171,16 +252,12 @@ var main = {
 	},
 
 	updateScore: function() {
-		this.game.score += 1;
-
-		if (this.game.score > this.highScore && !this.higher) {
-			this.higher = true;
-			this.highScore_text = this.game.add.text(this.game.world.centerX, this.scoreY + 32, 'highscore!', {font: '2em "Righteous"', fill: '#f6546a'});
-			this.highScore_text.anchor.setTo(0.5, 0.5)
-			this.game.add.tween(this.highScore_text).to({ angle:1 }, 200).to({ angle:-1 }, 200).loop().start();
-		}
-
+		this.game.score -= 1;
 		this.score_text.text = this.game.score;
 		this.score_text.anchor.setTo(0.5, 0.5);
+
+		if (this.game.score == 0) {
+			this.game.state.start('next-level');
+		}
 	}
 };

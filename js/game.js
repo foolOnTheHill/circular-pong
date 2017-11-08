@@ -2,10 +2,11 @@
 
 	// 650 x 650
 	var width = Math.min(window.innerWidth, 650);
+	var height = window.innerHeight;
 
-	var game = new Phaser.Game(width, width, Phaser.AUTO, 'game_div', {
+	var game = new Phaser.Game(width, height, Phaser.AUTO, 'game_div', {
 		preload: function() {
-			this.game.stage.backgroundColor = 0xccffcc;
+			this.game.stage.backgroundColor = "#000000";
 			this.game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
 
 			console.log('( ͡° ͜ʖ ͡°)');
@@ -23,5 +24,6 @@
 	game.state.add('load', load);
 	game.state.add('menu', menu);
 	game.state.add('main', main);
+	game.state.add('next-level', nextLevel);
 	game.state.add('end', end);
 })();

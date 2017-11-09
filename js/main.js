@@ -1,99 +1,153 @@
 var LEVELS = [
 	{
 		hits: 2,
-		accelerate: 0
+		accelerate: 0,
+		signal: 1
 	},
 	{
 		hits: 3,
-		accelerate: 0
+		accelerate: 0,
+		signal: 1
 	},
 	{
 		hits: 4,
-		accelerate: 0
+		accelerate: 0,
+		signal: 1
 	},
 	{
 		hits: 5,
-		accelerate: 0
+		accelerate: 0,
+		signal: 1
 	},
 	{
 		hits: 7,
-		accelerate: 0
+		accelerate: 0,
+		signal: 1
 	},
 	{
 		hits: 8,
-		accelerate: 1
-	},
-	{
-		hits: 9,
-		accelerate: 2
-	},
-	{
-		hits: 10,
-		accelerate: 0
-	},
-	{
-		hits: 12,
-		accelerate: 1
-	},
-	{
-		hits: 13,
-		accelerate: 1
-	},
-	{
-		hits: 15,
-		accelerate: 1
-	},
-	{
-		hits: 17,
-		accelerate: 1
-	},
-	{
-		hits: 18,
-		accelerate: 1
-	},
-	{
-		hits: 19,
-		accelerate: 1
-	},
-	{
-		hits: 3,
-		accelerate: 2
+		accelerate: 0,
+		signal: 1
 	},
 	{
 		hits: 4,
-		accelerate: 2
+		accelerate: 0,
+		signal: -1
 	},
 	{
 		hits: 5,
-		accelerate: 2
+		accelerate: 0,
+		signal: -1
 	},
 	{
 		hits: 7,
-		accelerate: 2
+		accelerate: 0,
+		signal: -1
+	},
+	{
+		hits: 8,
+		accelerate: 0,
+		signal: -1
+	},
+	{
+		hits: 9,
+		accelerate: 1,
+		signal: 1
 	},
 	{
 		hits: 10,
-		accelerate: 2
+		accelerate: 2,
+		signal: 1
 	},
 	{
-		hits: 11,
-		accelerate: 2
+		hits: 10,
+		accelerate: 0,
+		signal: 1
 	},
 	{
-		hits: 11,
-		accelerate: 2
-	},
-	{
-		hits: 11,
-		accelerate: 1
+		hits: 10,
+		accelerate: 0,
+		signal: -1
 	},
 	{
 		hits: 12,
-		accelerate: 0
+		accelerate: 0,
+		signal: 1
+	},
+	{
+		hits: 13,
+		accelerate: 1,
+		signal: 1
 	},
 	{
 		hits: 15,
-		accelerate: 2
+		accelerate: 1,
+		signal: 1
+	},
+	{
+		hits: 17,
+		accelerate: -1,
+		signal: 1
+	},
+	{
+		hits: 18,
+		accelerate: 1,
+		signal: -1
+	},
+	{
+		hits: 19,
+		accelerate: 1,
+		signal: 1
+	},
+	{
+		hits: 3,
+		accelerate: 2,
+		signal: 1
+	},
+	{
+		hits: 4,
+		accelerate: 2,
+		signal: 1
+	},
+	{
+		hits: 5,
+		accelerate: 2,
+		signal: -1
+	},
+	{
+		hits: 7,
+		accelerate: 2,
+		signal: 1
+	},
+	{
+		hits: 10,
+		accelerate: 2,
+		signal: -1
+	},
+	{
+		hits: 11,
+		accelerate: 2,
+		signal: -1
+	},
+	{
+		hits: 11,
+		accelerate: 2,
+		signal: 1
+	},
+	{
+		hits: 11,
+		accelerate: 1,
+		signal: 1
+	},
+	{
+		hits: 12,
+		accelerate: 0,
+		signal: -1
+	},
+	{
+		hits: 15,
+		accelerate: 2,
+		signal: 1
 	}
 ];
 
@@ -217,12 +271,16 @@ var main = {
 
 			var m = -(centerX - playerX) / (centerY - playerY);
 
+			var angle = Math.atan(m);
+			var xMin = playerX - Math.cos(angle)*this.player.width;
+			var xMax = playerX + Math.cos(angle)*this.player.width;
+
 			var a = m;
 			var b = playerY - m*playerX;
 
 			var dif = Math.abs((a*ballX + b) - ballY);
 
-			if (dif < threshold) {
+			if (ballX >= xMin & ballX <= xMax & dif < threshold) {
 				this.hitBall();
 			}
 		}

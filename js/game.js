@@ -4,7 +4,7 @@
 	var width = Math.min(window.innerWidth, 650);
 	var height = window.innerHeight;
 
-	var game = new Phaser.Game(width, height, Phaser.CANVAS, 'game_div', {
+	var game = new Phaser.Game(width, height, Phaser.AUTO, 'game_div', {
 		preload: function() {
 			this.game.stage.backgroundColor = "#000000";
 			this.game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');

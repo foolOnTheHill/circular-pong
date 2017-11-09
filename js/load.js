@@ -26,6 +26,7 @@ var load = {
 		this.game.load.image('ball', 'assets/ball.png');
 
 		this.game.load.audio('hit', 'assets/hit.mp3');
+		this.game.load.audio('bgs', 'assets/bgs.mp3');
 	},
 	create: function() {
 		this.game.state.start('menu');

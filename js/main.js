@@ -21,11 +21,11 @@ var LEVELS = [
 	},
 	{
 		hits: 8,
-		accelerate: 0
+		accelerate: 1
 	},
 	{
 		hits: 9,
-		accelerate: 0
+		accelerate: 2
 	},
 	{
 		hits: 10,
@@ -33,44 +33,68 @@ var LEVELS = [
 	},
 	{
 		hits: 12,
-		accelerate: 0
+		accelerate: 1
 	},
 	{
 		hits: 13,
+		accelerate: 1
+	},
+	{
+		hits: 15,
+		accelerate: 1
+	},
+	{
+		hits: 17,
+		accelerate: 1
+	},
+	{
+		hits: 18,
+		accelerate: 1
+	},
+	{
+		hits: 19,
+		accelerate: 1
+	},
+	{
+		hits: 3,
+		accelerate: 2
+	},
+	{
+		hits: 4,
+		accelerate: 2
+	},
+	{
+		hits: 5,
+		accelerate: 2
+	},
+	{
+		hits: 7,
+		accelerate: 2
+	},
+	{
+		hits: 10,
+		accelerate: 2
+	},
+	{
+		hits: 11,
+		accelerate: 2
+	},
+	{
+		hits: 11,
+		accelerate: 2
+	},
+	{
+		hits: 11,
+		accelerate: 1
+	},
+	{
+		hits: 12,
 		accelerate: 0
 	},
 	{
 		hits: 15,
-		accelerate: 0
-	},
-	{
-		hits: 17,
-		accelerate: 0
-	},
-	{
-		hits: 18,
-		accelerate: 0
-	},
-	{
-		hits: 19,
-		accelerate: 0
-	},
-	{
-		hits: 20,
-		accelerate: 1
-	},
-	{
-		hits: 22,
-		accelerate: 1
-	},
-	{
-		hits: 25,
-		accelerate: 1
-	},
-	{
-		hits: 30,
 		accelerate: 2
-	},
+	}
 ];
 
 var main = {
@@ -121,6 +145,9 @@ var main = {
 		this.ball.anchor.setTo(0.5, 0.5);
 		this.ball.visible = false;
 
+		this.ball.checkWorldBounds = true;
+		this.ball.events.onOutOfBounds.add(this.handleGameOver, this);
+
 		this.hit_sound = this.game.add.sound('hit');
 		this.hit_sound.volume = 0.2;
 
@@ -156,8 +183,8 @@ var main = {
 		if (!this.ballMoving && (this.cursors.left.isDown || this.cursors.right.isDown || this.game.input.mousePointer.isDown || this.game.input.pointer1.isDown)) {
 			this.instructions.destroy();
 			this.ball.visible = true;
-			this.ball.body.velocity.x = 315*this.resize;
-			this.ball.body.velocity.y = -115*this.resize;
+			this.ball.body.velocity.x = 290*this.resize;
+			this.ball.body.velocity.y = -110*this.resize;
 			this.ballMoving = true;
 			this.enablePad = true;
 		}
@@ -176,31 +203,37 @@ var main = {
 
 	handleCollisions: function() {
 		var check = this.checkBall();
-		var threshold = 2*this.ball.width+this.player.height;
+		var threshold = this.ball.width*2;
 
 		if (!check) {
 			var playerX = this.player.x;
 			var playerY = this.player.y;
-			var angle = this.player.rotation > 180 ? this.player.rotation%180 : this.player.rotation;
 
-			var a = Math.tan(angle);
-			var b = playerY - a*playerX;
+			var ballX = this.ball.x;
+			var ballY = this.ball.y;
 
-			var diff1 = Math.abs( (a*this.ball.x + b) - this.ball.y );
-			var diff2 = Math.abs( (a*(this.ball.x-10) + b) - this.ball.y );
-			var diff3 = Math.abs( (a*(this.ball.x+10) + b) - this.ball.y );
+			var centerX = this.game.world.centerX;
+			var centerY = this.game.world.centerY;
 
-			if (diff1 <= threshold || diff2 <= threshold || diff3 <= threshold) {
+			var m = -(centerX - playerX) / (centerY - playerY);
+
+			var a = m;
+			var b = playerY - m*playerX;
+
+			var dif = Math.abs((a*ballX + b) - ballY);
+
+			if (dif < threshold) {
 				this.hitBall();
-			} else {
-				this.handleGameOver();
 			}
-		} else if (this.enablePad){
+		}
+
+		if (this.enablePad){
 			this.circularMotion();
 		}
 	},
 
 	handleGameOver: function() {
+		// this.game.bgm.stop();
 		this.player.kill();
 		this.game.state.start('end');
 	},
@@ -213,10 +246,24 @@ var main = {
 	},
 
 	circularMotion: function () {
-		if (this.direction === -1) {
-			this.period = (this.period - 0.08)%360;
+		var dif;
+
+		if (this.game.current_level <= 3) {
+			dif = 0.04;
 		} else {
-			this.period = (this.period + 0.08)%360;
+			if (this.game.level.accelerate === 0) {
+				dif = 0.05;
+			} else if (this.game.level.accelerate === 1) {
+				dif = 0.06;
+			} else {
+				dif = 0.08;
+			}
+		}
+
+		if (this.direction === -1) {
+			this.period = (this.period - dif)%360;
+		} else {
+			this.period = (this.period + dif)%360;
 		}
 
 		this.player.x = this.game.world.centerX + Math.cos(this.period)*this.radius;
@@ -234,6 +281,9 @@ var main = {
 
 		this.ball.body.velocity.x *= -1;
 		this.ball.body.velocity.y *= -1;
+
+		this.ball.body.velocity.x += Math.random();
+		this.ball.body.velocity.y += Math.random();
 
 		if (this.game.level.accelerate >= 1) {
 			this.ball.body.velocity.x = (this.ball.body.velocity.x)*(1-fac) + velX*fac;
@@ -259,6 +309,7 @@ var main = {
 		this.score_text.anchor.setTo(0.5, 0.5);
 
 		if (this.game.score == 0) {
+			// this.game.bgm.stop();
 			this.game.state.start('next-level');
 		}
 	}

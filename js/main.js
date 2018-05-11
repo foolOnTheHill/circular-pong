@@ -153,6 +153,11 @@ var LEVELS = [
 		hits: 16,
 		accelerate: 2,
 		signal: 1
+	},
+	{
+		hits: 17,
+		accelerate: 2,
+		signal: 1
 	}
 ];
 

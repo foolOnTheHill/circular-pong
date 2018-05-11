@@ -174,7 +174,6 @@ var main = {
 		this.graphics.endFill();
 
 		// Game Constants
-		this.direction = 1;
 		this.radius = 250*this.resize;
 		this.period = 0.5*Math.PI;
 		this.hitTime = 0;
@@ -212,6 +211,7 @@ var main = {
 
 		//Level
 		this.game.level = LEVELS[this.game.current_level];
+		this.direction = this.game.level.signal;
 
 		// Hits
 		this.game.score = this.game.level.hits;
@@ -242,7 +242,7 @@ var main = {
 		if (!this.ballMoving && (this.cursors.left.isDown || this.cursors.right.isDown || this.game.input.mousePointer.isDown || this.game.input.pointer1.isDown)) {
 			this.instructions.destroy();
 			this.ball.visible = true;
-			this.ball.body.velocity.x = 290*this.resize;
+			this.ball.body.velocity.x = this.game.level.signal*290*this.resize;
 			this.ball.body.velocity.y = -110*this.resize;
 			this.ballMoving = true;
 			this.enablePad = true;
